@@ -54,6 +54,57 @@ function formatCEP(cep) {
     return cep ? String(cep).replace(/[^0-9]/g, '').padStart(8, '0') : '00000000';
 }
 
+fetch('data.xlsx')
+    .then(response => response.arrayBuffer())
+    .then(async (data) => {
+        const workbook = XLSX.read(data, {type: 'array'});
+        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+        
+        const jsonData = XLSX.utils.sheet_to_json(firstSheet).map(row => ({
+            'NOME FANTASIA': row['NOME FANTASIA'],
+            'CEP': formatCEP(row['CEP']),
+            'LOGRADOURO': row['LOGRADOURO'],
+            'COMPLEMENTO': row['COMPLEMENTO'],
+            'BAIRRO': row['BAIRRO'],
+            'CIDADE': row['CIDADE'],
+            'UF': row['UF']
+        }));
+
+        const estados = [...new Set(jsonData.map(item => item.UF))].sort();
+        const selectEstado = document.getElementById('estadoFilter');
+        estados.forEach(estado => {
+            const option = document.createElement('option');
+            option.value = estado;
+            option.textContent = estado;
+            selectEstado.appendChild(option);
+        });
+
+        for (const item of jsonData) {
+            const coords = await buscarCoordenadas(item.CEP);
+            if (coords) {
+                const marker = L.marker([coords.lat, coords.lon], {
+                    icon: customIcon
+                }).addTo(map);
+                
+                // Adiciona dados ao marcador
+                marker.getData = () => ({
+                    nomeFantasia: item['NOME FANTASIA'],
+                    cep: item.CEP
+                });
+
+                marker.bindPopup(`
+                    <b>${item['NOME FANTASIA']}</b><br>
+                    ${item.LOGRADOURO}, ${item.COMPLEMENTO}<br>
+                    ${item.BAIRRO} - ${item.CIDADE}/${item.UF}<br>
+                    CEP: ${item.CEP}
+                `);
+
+                markers.push(marker);
+            }
+        }
+    })
+    .catch(error => console.error('Erro ao carregar o arquivo:', error));
+
 async function buscarCoordenadas(cep) {
     try {
         const response = await fetch(`https://viacep.com.br/ws/${cep}/json/`);
@@ -151,54 +202,3 @@ function buscarLocal() {
         }
     })
     .catch(error => console.error('Erro ao carregar os dados:', error));*/
-
-fetch('data.xlsx')
-    .then(response => response.arrayBuffer())
-    .then(async (data) => {
-        const workbook = XLSX.read(data, {type: 'array'});
-        const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-        
-        const jsonData = XLSX.utils.sheet_to_json(firstSheet).map(row => ({
-            'NOME FANTASIA': row['NOME FANTASIA'],
-            'CEP': formatCEP(row['CEP']),
-            'LOGRADOURO': row['LOGRADOURO'],
-            'COMPLEMENTO': row['COMPLEMENTO'],
-            'BAIRRO': row['BAIRRO'],
-            'CIDADE': row['CIDADE'],
-            'UF': row['UF']
-        }));
-
-        const estados = [...new Set(jsonData.map(item => item.UF))].sort();
-        const selectEstado = document.getElementById('estadoFilter');
-        estados.forEach(estado => {
-            const option = document.createElement('option');
-            option.value = estado;
-            option.textContent = estado;
-            selectEstado.appendChild(option);
-        });
-
-        for (const item of jsonData) {
-            const coords = await buscarCoordenadas(item.CEP);
-            if (coords) {
-                const marker = L.marker([coords.lat, coords.lon], {
-                    icon: customIcon
-                }).addTo(map);
-                
-                // Adiciona dados ao marcador
-                marker.getData = () => ({
-                    nomeFantasia: item['NOME FANTASIA'],
-                    cep: item.CEP
-                });
-
-                marker.bindPopup(`
-                    <b>${item['NOME FANTASIA']}</b><br>
-                    ${item.LOGRADOURO}, ${item.COMPLEMENTO}<br>
-                    ${item.BAIRRO} - ${item.CIDADE}/${item.UF}<br>
-                    CEP: ${item.CEP}
-                `);
-
-                markers.push(marker);
-            }
-        }
-    })
-    .catch(error => console.error('Erro ao carregar o arquivo:', error));
