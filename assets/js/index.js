@@ -54,7 +54,7 @@ function formatCEP(cep) {
     return cep ? String(cep).replace(/[^0-9]/g, '').padStart(8, '0') : '00000000';
 }
 
-/*fetch('data.xlsx')
+fetch('data.xlsx')
     .then(response => response.arrayBuffer())
     .then(async (data) => {
         const workbook = XLSX.read(data, {type: 'array'});
@@ -103,7 +103,7 @@ function formatCEP(cep) {
             }
         }
     })
-    .catch(error => console.error('Erro ao carregar o arquivo:', error));*/
+    .catch(error => console.error('Erro ao carregar o arquivo:', error));
 
 async function buscarCoordenadas(cep) {
     try {
@@ -155,7 +155,7 @@ function buscarLocal() {
 }
 
 // Substituir o fetch do arquivo XLSX por:
-fetch('https://sheetdb.io/api/v1/g6pzaqljw9h87?sheet=lojas-touti')
+/*fetch('https://sheetdb.io/api/v1/g6pzaqljw9h87?sheet=lojas-touti')
     .then(response => response.json())
     .then(async (jsonData) => {
         // Mapeia os dados da API para o mesmo formato
@@ -201,4 +201,4 @@ fetch('https://sheetdb.io/api/v1/g6pzaqljw9h87?sheet=lojas-touti')
             }
         }
     })
-    .catch(error => console.error('Erro ao carregar os dados:', error));
+    .catch(error => console.error('Erro ao carregar os dados:', error));*/
