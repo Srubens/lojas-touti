@@ -6,7 +6,7 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 
 // Cria um ícone personalizado
 const customIcon = L.icon({
-    iconUrl: '../../touti-nlogo-wbg.jpg',
+    iconUrl: 'https://raw.githubusercontent.com/srubens/lojas-touti/main/touti-nlogo-wbg.jpg',
     iconSize: [32, 32], // tamanho do ícone
     iconAnchor: [16, 32], // ponto do ícone que corresponderá à localização
     popupAnchor: [0, -32] // ponto de onde o popup deve abrir em relação ao iconAnchor
